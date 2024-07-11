@@ -1,66 +1,27 @@
-## Foundry
-
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
-
-Foundry consists of:
-
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
-
-## Documentation
-
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
 ```shell
-$ forge build
-```
-
-### Test
-
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
+$ forge install
 ```
 
 ### Deploy
+
+Set environment variables
+
+```shell
+  source .env
+```
+
+Deploy mock tokens:
+
+```shell
+  forge create --rpc-url base_sepolia --private-key $PRIVATE_KEY --verify lib/v4-template/script/mocks/mUNI.sol:MockUNI
+```
+
+Can not verify because of this: https://github.com/foundry-rs/foundry/issues/7411
 
 ```shell
 $ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
 ```
 
-### Cast
+forge script script/Deploy.sol:Deploy --rpc-url base_sepolia --private-key $PRIVATE_KEY --verify
 
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+forge script script/Send.sol:Send --rpc-url base_sepolia --private-key $PRIVATE_KEY
