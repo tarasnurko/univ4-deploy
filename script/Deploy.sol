@@ -41,8 +41,9 @@ contract Deploy is Script, Deployers {
         deployMockTokens();
 
         // initializePool(IHooks(Constants.ADDRESS_ZERO));
-        deployCounterHookAndPool();
+        // deployCounterHookAndPool();
         vm.stopBroadcast();
+        logDeployedAddresses();
         // deployNftGifterHook();
     }
 
@@ -113,6 +114,19 @@ contract Deploy is Script, Deployers {
         }
 
         (currency0, currency1) = SortTokens.sort(tokensArr[0], tokensArr[1]);
+    }
+
+    function logDeployedAddresses() public {
+        console2.log("manager", address(manager));
+        console2.log("swapRouter", address(swapRouter));
+        console2.log("modifyLiquidityRouter", address(modifyLiquidityRouter));
+        console2.log("donateRouter", address(donateRouter));
+        console2.log("takeRouter", address(takeRouter));
+        console2.log("settleRouter", address(settleRouter));
+        console2.log("claimsRouter", address(claimsRouter));
+        console2.log("nestedActionRouter", address(nestedActionRouter));
+        console2.log("feeController", address(feeController));
+        console2.log("nestedActionRouter", address(nestedActionRouter));
     }
 
     // function deployNftGifterHook() public {
