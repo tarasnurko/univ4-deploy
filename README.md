@@ -25,3 +25,5 @@ $ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --pri
 forge script script/Deploy.sol:Deploy --rpc-url base_sepolia --private-key $PRIVATE_KEY --verify
 
 forge script script/Send.sol:Send --rpc-url base_sepolia --private-key $PRIVATE_KEY
+
+forge create --rpc-url base_sepolia --private-key $PRIVATE_KEY --verify src/Create2Deployer.sol:Create2Deployer
