@@ -6,23 +6,26 @@ import {BalanceDelta} from "v4-core/src/types/BalanceDelta.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 import {BeforeSwapDelta} from "v4-core/src/types/BeforeSwapDelta.sol";
 import {IHooks} from "v4-core/src/interfaces/IHooks.sol";
+import {ERC721} from "openzeppelin/token/ERC721/ERC721.sol";
 
 import {OnlyPoolManager} from "./OnlyPoolManager.sol";
 
 /*
   Permissions:
-    - beforeAddLiquidity
-    - beforeRemoveLiquidity
-    - beforeSwap
-    - beforeDonate
-
+    - afterDonate
 */
-contract Counter is OnlyPoolManager, IHooks {
-    uint256 public swapCounter;
-    uint256 public liquidityCounter;
-    uint256 public donateCounter;
 
-    constructor(address _poolManager) OnlyPoolManager(_poolManager) {}
+contract NftGifter is OnlyPoolManager, ERC721, IHooks {
+    uint256 tokenCounter;
+
+    mapping(address user => bool hasGifted) public giftedUsers;
+
+    constructor(address _poolManager) OnlyPoolManager(_poolManager) ERC721("SMG", "SMG") {}
+
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        require(tokenId < tokenCounter);
+        return "https://uploads.dailydot.com/2024/06/patrick-bateman-sigma-face.jpg?auto=compress&fm=pjpg";
+    }
 
     function beforeInitialize(address sender, PoolKey calldata key, uint160 sqrtPriceX96, bytes calldata hookData)
         external
@@ -42,10 +45,7 @@ contract Counter is OnlyPoolManager, IHooks {
         PoolKey calldata key,
         IPoolManager.ModifyLiquidityParams calldata params,
         bytes calldata hookData
-    ) external onlyPoolManager returns (bytes4) {
-        ++liquidityCounter;
-        return IHooks.beforeAddLiquidity.selector;
-    }
+    ) external returns (bytes4) {}
 
     function afterAddLiquidity(
         address sender,
@@ -60,10 +60,7 @@ contract Counter is OnlyPoolManager, IHooks {
         PoolKey calldata key,
         IPoolManager.ModifyLiquidityParams calldata params,
         bytes calldata hookData
-    ) external onlyPoolManager returns (bytes4) {
-        ++liquidityCounter;
-        return IHooks.beforeRemoveLiquidity.selector;
-    }
+    ) external returns (bytes4) {}
 
     function afterRemoveLiquidity(
         address sender,
@@ -78,10 +75,7 @@ contract Counter is OnlyPoolManager, IHooks {
         PoolKey calldata key,
         IPoolManager.SwapParams calldata params,
         bytes calldata hookData
-    ) external onlyPoolManager returns (bytes4, BeforeSwapDelta, uint24) {
-        ++swapCounter;
-        return (IHooks.beforeSwap.selector, BeforeSwapDelta.wrap(0), 0);
-    }
+    ) external returns (bytes4, BeforeSwapDelta, uint24) {}
 
     function afterSwap(
         address sender,
@@ -97,10 +91,7 @@ contract Counter is OnlyPoolManager, IHooks {
         uint256 amount0,
         uint256 amount1,
         bytes calldata hookData
-    ) external onlyPoolManager returns (bytes4) {
-        ++donateCounter;
-        return IHooks.beforeDonate.selector;
-    }
+    ) external returns (bytes4) {}
 
     function afterDonate(
         address sender,
@@ -108,5 +99,12 @@ contract Counter is OnlyPoolManager, IHooks {
         uint256 amount0,
         uint256 amount1,
         bytes calldata hookData
-    ) external returns (bytes4) {}
+    ) external onlyPoolManager returns (bytes4) {
+        if (!giftedUsers[sender]) {
+            _mint(sender, tokenCounter++);
+            giftedUsers[sender] = true;
+        }
+
+        return IHooks.afterDonate.selector;
+    }
 }
