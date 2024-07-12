@@ -18,6 +18,7 @@ import {Constants} from "v4-core/test/utils/Constants.sol";
 
 // Hooks
 import {Counter} from "src/Counter.sol";
+import {CounterFactory} from "src/CounterFactory.sol";
 import {NftGifter} from "src/NftGifter.sol";
 
 contract Deploy is Script, Deployers {
@@ -57,11 +58,13 @@ contract Deploy is Script, Deployers {
                 | Hooks.BEFORE_DONATE_FLAG
         );
 
-        (address predictedAddr, bytes32 salt) =
-            HookMiner.find(DEPLOYER, hookFlags, type(Counter).creationCode, abi.encode(poolManagerAddr));
+        CounterFactory counterFactory = new CounterFactory();
 
+        (address predictedAddr, bytes32 salt) =
+            HookMiner.find(address(counterFactory), hookFlags, type(Counter).creationCode, abi.encode(poolManagerAddr));
+            
         vm.startBroadcast();
-        Counter counter = new Counter{salt: salt}(poolManagerAddr);
+        Counter counter = Counter(counterFactory.deployCounter(poolManagerAddr, salt));
         vm.stopBroadcast();
 
         require(predictedAddr == address(counter), "Counter: Addresses are not the same");
@@ -76,23 +79,24 @@ contract Deploy is Script, Deployers {
     }
 
     function deployNftGifterHook() public {
-        uint160 hookFlags = uint160(Hooks.AFTER_DONATE_FLAG);
+        // uint160 hookFlags = uint160(Hooks.AFTER_DONATE_FLAG);
 
-        (address predictedAddr, bytes32 salt) =
-            HookMiner.find(DEPLOYER, hookFlags, type(NftGifter).creationCode, abi.encode(poolManagerAddr));
+        // (address predictedAddr, bytes32 salt) =
+        //     HookMiner.find(DEPLOYER, hookFlags, type(NftGifter).creationCode, abi.encode(poolManagerAddr));
 
-        vm.startBroadcast();
-        NftGifter nftGifter = new NftGifter{salt: salt}(poolManagerAddr);
-        vm.stopBroadcast();
+        
+        // vm.startBroadcast();
+        // NftGifter nftGifter = new NftGifter{salt: salt}(poolManagerAddr);
+        // vm.stopBroadcast();
 
-        require(predictedAddr == address(nftGifter), "Counter: Addresses are not the same");
+        // require(predictedAddr == address(nftGifter), "Counter: Addresses are not the same");
 
-        console2.log("NftGifter deployed to: ", address(nftGifter));
+        // console2.log("NftGifter deployed to: ", address(nftGifter));
 
-        (, PoolId id) =
-            initPool(currency0, currency1, IHooks(address(nftGifter)), 3000, uint160(8954775038521010328727300007), "");
+        // (, PoolId id) =
+        //     initPool(currency0, currency1, IHooks(address(nftGifter)), 3000, uint160(8954775038521010328727300007), "");
 
-        console2.log("NftGifter pool id:");
-        console2.logBytes32(PoolId.unwrap(id));
+        // console2.log("NftGifter pool id:");
+        // console2.logBytes32(PoolId.unwrap(id));
     }
 }
